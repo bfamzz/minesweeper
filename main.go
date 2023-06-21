@@ -91,20 +91,6 @@ func (mineField *MineField) initMineField(rows, columns, mines int) {
 
 	for row := 0; row < mineField.field.rows; row++ {
 		for column := 0; column < mineField.field.columns; column++ {
-			// if mineField.field.at(row, column).value != kMine {
-			// 	continue
-			// }
-
-			// // fmt.Printf("Row Column - (%d,%d)\n", row, column)
-
-			// for i := mineField.max(0, row-1); i <= mineField.min(row-1, row+1); i++ {
-			// 	for j := mineField.max(0, column-1); j <= mineField.min(column-1, column+1); j++ {
-			// 		if (i != row || j != column) && mineField.field.at(i, j).value != kMine {
-			// 			// fmt.Printf("i, j - (%d,%d)\n", i, j)
-			// 			mineField.field.at(i, j).value++
-			// 		}
-			// 	}
-			// }
 			if mineField.field.at(row, column).value != kMine {
 				// check the cells above, above-diagonal-left, above-diagonal-right
 				// left, right
@@ -194,8 +180,6 @@ func (mineField *MineField) onClick(row, column int) bool {
 	mineField.onClick(row, column-1)
 	mineField.onClick(row, column+1)
 
-	// mineField.print(false)
-
 	return false
 }
 
@@ -214,13 +198,13 @@ func (mineField *MineField) print(showHidden bool) {
 }
 
 func main() {
-	mineField := NewMineField(8, 11, 7)
+	rows, columns := 8, 11
+	mineField := NewMineField(rows, columns, 7)
 
 	fmt.Println("############## Initial State ##############")
 	mineField.print(true)
-	i, j := 8, 11
 	for {
-		row, column := rand.Intn(i), rand.Intn(j)
+		row, column := rand.Intn(rows), rand.Intn(columns)
 		fmt.Printf("Clicked on: (%d, %d)\n", row, column)
 		over := mineField.onClick(row, column)
 		if over {
