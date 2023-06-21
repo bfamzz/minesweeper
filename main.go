@@ -52,13 +52,13 @@ func (mineField *MineField) min(x, y int) int {
 	return y
 }
 
-func (mineField *MineField) max(x, y int) int {
-	if x > y {
-		return x
-	}
+// func (mineField *MineField) max(x, y int) int {
+// 	if x > y {
+// 		return x
+// 	}
 
-	return y
-}
+// 	return y
+// }
 
 func (mineField *MineField) swap(i, j int) {
 	iVal := mineField.field.at(i/mineField.field.columns, i%mineField.field.columns)
@@ -80,6 +80,8 @@ func (mineField *MineField) initMineField(rows, columns, mines int) {
 		}
 	}
 
+	mineField.print(true)
+
 	for i := 0; i < mineField.min(mines, sum-1); i++ {
 		j := i + (rand.Int() % (sum - i))
 		mineField.swap(i, j)
@@ -89,17 +91,73 @@ func (mineField *MineField) initMineField(rows, columns, mines int) {
 
 	for row := 0; row < mineField.field.rows; row++ {
 		for column := 0; column < mineField.field.columns; column++ {
+			// if mineField.field.at(row, column).value != kMine {
+			// 	continue
+			// }
+
+			// // fmt.Printf("Row Column - (%d,%d)\n", row, column)
+
+			// for i := mineField.max(0, row-1); i <= mineField.min(row-1, row+1); i++ {
+			// 	for j := mineField.max(0, column-1); j <= mineField.min(column-1, column+1); j++ {
+			// 		if (i != row || j != column) && mineField.field.at(i, j).value != kMine {
+			// 			// fmt.Printf("i, j - (%d,%d)\n", i, j)
+			// 			mineField.field.at(i, j).value++
+			// 		}
+			// 	}
+			// }
 			if mineField.field.at(row, column).value != kMine {
-				continue
-			}
+				// check the cells above, above-diagonal-left, above-diagonal-right
+				// left, right
+				// below, below-diagonal-left, below-diagonal-right
+				rowAbove := row - 1
+				leftCol := column - 1
+				rightCol := column + 1
+				rowBelow := row + 1
+				if rowAbove >= 0 {
+					if mineField.field.at(rowAbove, column).value == kMine {
+						mineField.field.at(row, column).value++
+					}
 
-			fmt.Printf("Row Column - (%d,%d)\n", row, column)
+					if leftCol >= 0 {
+						if mineField.field.at(rowAbove, leftCol).value == kMine {
+							mineField.field.at(row, column).value++
+						}
+					}
 
-			for i := mineField.max(0, row-1); i <= mineField.min(row-1, row+1); i++ {
-				for j := mineField.max(0, column-1); j <= mineField.min(column-1, column+1); j++ {
-					if (i != row || j != column) && mineField.field.at(i, j).value != kMine {
-						fmt.Printf("i, j - (%d,%d)\n", i, j)
-						mineField.field.at(i, j).value++
+					if rightCol < mineField.field.columns {
+						if mineField.field.at(rowAbove, rightCol).value == kMine {
+							mineField.field.at(row, column).value++
+						}
+					}
+				}
+
+				if leftCol >= 0 {
+					if mineField.field.at(row, leftCol).value == kMine {
+						mineField.field.at(row, column).value++
+					}
+				}
+
+				if rightCol < mineField.field.columns {
+					if mineField.field.at(row, rightCol).value == kMine {
+						mineField.field.at(row, column).value++
+					}
+				}
+
+				if rowBelow < mineField.field.rows {
+					if mineField.field.at(rowBelow, column).value == kMine {
+						mineField.field.at(row, column).value++
+					}
+
+					if leftCol >= 0 {
+						if mineField.field.at(rowBelow, leftCol).value == kMine {
+							mineField.field.at(row, column).value++
+						}
+					}
+
+					if rightCol < mineField.field.columns {
+						if mineField.field.at(rowBelow, rightCol).value == kMine {
+							mineField.field.at(row, column).value++
+						}
 					}
 				}
 			}
@@ -115,6 +173,7 @@ func (mineField *MineField) onClick(row, column int) bool {
 	if mineField.field.at(row, column).visible {
 		return false
 	}
+
 	mineField.field.at(row, column).visible = true
 	if mineField.field.at(row, column).value == kMine {
 		fmt.Println("BOOM!!!")
@@ -125,9 +184,18 @@ func (mineField *MineField) onClick(row, column int) bool {
 	}
 
 	mineField.onClick(row-1, column)
+	mineField.onClick(row-1, column-1)
+	mineField.onClick(row-1, column+1)
+
 	mineField.onClick(row+1, column)
+	mineField.onClick(row+1, column+1)
+	mineField.onClick(row+1, column-1)
+
 	mineField.onClick(row, column-1)
 	mineField.onClick(row, column+1)
+
+	// mineField.print(false)
+
 	return false
 }
 
@@ -150,14 +218,15 @@ func main() {
 
 	fmt.Println("############## Initial State ##############")
 	mineField.print(true)
-	mineField.onClick(5, 1)
-	mineField.print(false)
-	mineField.onClick(2, 6)
-	mineField.print(false)
-	mineField.onClick(9, 3)
-	mineField.print(false)
-	mineField.onClick(0, 0)
-	mineField.print(false)
-	mineField.onClick(3, 5)
-	mineField.print(false)
+	i, j := 8, 11
+	for {
+		row, column := rand.Intn(i), rand.Intn(j)
+		fmt.Printf("Clicked on: (%d, %d)\n", row, column)
+		over := mineField.onClick(row, column)
+		if over {
+			break
+		} else {
+			mineField.print(false)
+		}
+	}
 }
