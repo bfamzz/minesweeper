@@ -201,8 +201,12 @@ func main() {
 	rows, columns := 8, 11
 	mineField := NewMineField(rows, columns, 7)
 
-	fmt.Println("############## Initial State ##############")
+	fmt.Println("############## Hidden Initial State ##############")
 	mineField.print(true)
+
+	fmt.Println("############## Initial State Seen by User ##############")
+	mineField.print(false)
+	
 	for {
 		row, column := rand.Intn(rows), rand.Intn(columns)
 		fmt.Printf("Clicked on: (%d, %d)\n", row, column)
